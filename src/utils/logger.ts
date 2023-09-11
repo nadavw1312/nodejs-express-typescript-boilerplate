@@ -1,4 +1,4 @@
-import winston from "winston";
+import * as winston from "winston";
 import config from "../config/config";
 
 interface LoggingInfo {
@@ -17,18 +17,17 @@ const logger = winston.createLogger({
   level: config.env === "development" ? "debug" : "info",
   format: winston.format.combine(
     enumerateErrorFormat(),
-    config.env === "development"
-      ? winston.format.colorize()
-      : winston.format.uncolorize(),
+    config.env === "development" ? winston.format.colorize() : winston.format.uncolorize(),
+    winston.format.timestamp(),
     winston.format.splat(),
-    winston.format.printf(
-      (info: LoggingInfo) => `${info.level}: ${info.message}`
-    )
+    winston.format.printf((info: LoggingInfo) => `${info.level}: ${info.message}`)
   ),
   transports: [
     new winston.transports.Console({
       stderrLevels: ["error"],
     }),
+    new winston.transports.File({ filename: "logs/error/error.log", level: "error" }),
+    new winston.transports.File({ filename: "logs/activity/activity.log", level: "info" }),
   ],
 });
 
