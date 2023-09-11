@@ -3,31 +3,28 @@ import { AuthenticationType, RequestMethod } from "../../types/enums";
 import errorHandler from "./error-handler";
 import { authHandler } from "./auth-handler";
 import { ExpressHandler } from "../../types/types";
-import validateRequest from "./validate-request";
+import validateRequest, { SchemaValidator } from "./validate-request";
 
 type RequestHandlerProps = {
   router: Router;
   method: RequestMethod;
   urlPath: string;
   authType?: AuthenticationType;
-  validate?: (req: Request, res: Response, next: NextFunction) => void;
   finalAction: (req: Request, res: Response, next: NextFunction) => void;
-  additionalPipes?: Array<(req: Request, res: Response, next: NextFunction) => void>;
-  requestSchema?: Record<string, any>;
+  additionalPipes?: Array<ExpressHandler>;
+  requestSchema?: SchemaValidator;
 };
 
 class RequestHandler {
   createEndPoint = (props: RequestHandlerProps) => {
-    const { router, method, urlPath, authType, validate, finalAction, additionalPipes, requestSchema } = props;
+    const { router, method, urlPath, authType, finalAction, additionalPipes, requestSchema } = props;
     const pipes = [];
 
-    requestSchema && pipes.push((...args: Parameters<ExpressHandler>) => validateRequest(...args, requestSchema));
+    if (requestSchema) pipes.push((...args: Parameters<ExpressHandler>) => validateRequest(...args, requestSchema));
 
-    validate && pipes.push((...args: Parameters<ExpressHandler>) => validate(...args));
+    if (authType) pipes.push((...args: Parameters<ExpressHandler>) => authHandler(...args, authType));
 
-    authType && pipes.push((...args: Parameters<ExpressHandler>) => authHandler(...args, authType));
-
-    additionalPipes && pipes.push(...additionalPipes);
+    if (additionalPipes) pipes.push(...additionalPipes);
 
     pipes.push((req, res) => this.runFinalAction(req, res, finalAction, authType));
 

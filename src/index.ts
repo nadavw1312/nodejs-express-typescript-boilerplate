@@ -1,8 +1,10 @@
 import app from "./app";
 import config from "./config/config";
-import logger from "./modules/logger/logger";
+import logger from "./utils/logger";
+import * as http from "http";
 
-let server: any;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let server: http.Server;
 
 const startServer = async () => {
   // connect to db

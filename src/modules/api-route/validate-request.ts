@@ -1,14 +1,22 @@
 import { Request, Response, NextFunction } from "express";
-import Ajv from "ajv";
-import httpStatus from "http-status";
-import pick from "lodash.pick";
-import { ApiError } from "../errors/api-error";
 
-const validateRequest = (req: Request, res: Response, next: NextFunction, schema: Record<string, any>): void => {
-  const validSchema = pick(schema, ["params", "query", "body"]);
-  const object = pick(req, Object.keys(validSchema));
-  const ajv = new Ajv();
-  const validate = ajv.compile(schema);
+import httpStatus from "http-status";
+import * as pick from "lodash.pick";
+import { ApiError } from "../errors/api-error";
+import { Type } from "@sinclair/typebox";
+import { ajv } from "../../utils/json-schema-validator";
+
+export interface SchemaValidator {
+  body?: typeof Type.Object;
+  query?: typeof Type.Object;
+  params?: typeof Type.Object;
+}
+
+const validateRequest = (req: Request, res: Response, next: NextFunction, schema: SchemaValidator): void => {
+  const schemaToValidate = pick(schema, ["params", "query", "body"]);
+  const object = pick(req, Object.keys(schemaToValidate));
+  const validSchema = Type.Object({ ...schemaToValidate });
+  const validate = ajv.compile(validSchema);
   const valid = validate(object);
   if (!valid) {
     const errorMessage = ajv.errorsText(validate.errors);

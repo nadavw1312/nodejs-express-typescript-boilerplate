@@ -13,8 +13,8 @@ enum Environment {
 
 const envSchema = Type.Object({
   NODE_ENV: Type.Enum(Environment),
-  PORT: Type.Number(),
-  CLIENT_URL: Type.String(),
+  PORT: Type.Optional(Type.Number()),
+  CLIENT_URL: Type.Optional(Type.String()),
   JWT_SECRET: Type.Optional(Type.String()),
 });
 
@@ -30,7 +30,7 @@ if (!valid) {
 const config = {
   env: envVars.NODE_ENV,
   isDev: envVars.NODE_ENV === Environment.Development,
-  port: envVars.PORT,
+  port: envVars.PORT || 3000,
   clientUrl: envVars.CLIENT_URL,
   jwtSecret: envVars.JWT_SECRET,
 };

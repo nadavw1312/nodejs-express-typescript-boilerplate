@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import ApiRoutes from "./api-routes";
 
-class ApiRoute {
+class ApiRouter {
   router: Router;
 
   constructor(routeName: string, apiRoutes: ApiRoutes) {
@@ -10,4 +10,4 @@ class ApiRoute {
   }
 }
 
-export default ApiRoute;
+export default ApiRouter;

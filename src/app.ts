@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import v1MainRoutes from "./routes/v1/main-routes";
+import logger from "./utils/logger";
 
 const app: Express = express();
 
@@ -20,6 +21,12 @@ app.use(express.urlencoded({ extended: true }));
 // v1 api routes
 v1MainRoutes.routes.forEach((route) => {
   app.use(route.path, route.router);
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err, req, res, next) => {
+  logger.error(err);
+  res.status(500).send("Internal Server Error");
 });
 
 app.get("/health", (req, res) => {
